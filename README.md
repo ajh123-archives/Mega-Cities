@@ -1,4 +1,4 @@
-# Isometric-Farm-Demo
+# Mega Cities
 
 This is based of [Saccharine-Coal's isometric farm](https://github.com/Saccharine-Coal/Isometric-Farm-Demo)
 
@@ -15,9 +15,9 @@ Python and it's Pygame module are used for creating the game.
 - Pressing the escape button in the game window automatically saves the game.
 
 # Settings
-- Grid size can be changed in the settings file, default is 20 x 20.
-- The 'tick' rate determines how fast crops will grow, default is 30 seconds.
-- Default resolution is 1024 x 768.
+- Grid size can be changed in the src/settings file, default is 20 x 20.
+- The 'tick' rate determines how fast crops growth or other events happen, default is 30 seconds.
+- Default resolution is 500 x 500.
 
 # Changelog
 - Added a saving and loading system.
