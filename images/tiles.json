@@ -1,0 +1,36 @@
+{
+  "tiles": {
+    "grass": {
+      "id":"b",
+      "image":"grass_tile",
+      "multiStates": false
+    },
+    "dirt": {
+      "id":2,
+      "image":"dirt_tile",
+      "multiStates": false
+    },
+    "concrete": {
+      "id":"a",
+      "image":"concrete_ tile",
+      "multiStates": false
+    },
+    "orange tulip": {
+      "multiStates": true,
+      "states": {
+        "seed" : {
+          "id":3,
+          "image":"overlay seed tile"
+        },
+        "growing" : {
+          "id":4,
+          "image":"overlay flower1 tile"
+        },
+        "flower" : {
+          "id":5,
+          "image":"overlay flower2 tile"
+        }
+      }
+    }
+  }
+}

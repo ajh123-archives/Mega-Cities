@@ -139,12 +139,12 @@ class Game:
         if self.grid_foreground.grid_data[x][y].data >= 5:
             self.economy.sell(self.grid_foreground.grid_data[x][y].tile_string)
             self.grid_foreground.update_tile(2, x, y)
-            self.grid_foreground.grid_data[x][y].grow = False
+            self.grid_foreground.grid_data[x][y].multi_states = False
             self.grid_background.update_tile(2, x, y)
         elif self.grid_background.grid_data[x][y].data == 2:
             self.grid_foreground.update_tile(3, x, y)
             self.grid_foreground.check_update_grid()
-            self.grid_foreground.grid_data[x][y].grow = True
+            self.grid_foreground.grid_data[x][y].multi_states = True
             self.economy.buy(self.grid_foreground.grid_data[x][y].tile_string)
         else:
             self.grid_background.update_tile(2, x, y)
@@ -196,7 +196,7 @@ class Game:
     def grow(self):
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
-                if tile.grow:
+                if tile.multi_states:
                     result = self.gen.generate_random_number(0, 1)
                     if result == 0:
                         tile.data += 1

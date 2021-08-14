@@ -41,17 +41,18 @@ class Tile(pg.sprite.Sprite):
         super(Tile, self).__init__()
         self.data = data
         self.game = game
-        self.check_data()
         self.grid = grid
 
         # Flags to check if other processes are needed.
         self.flag = False
         self.sprite_init = True
-        self.grow = False
+        self.multi_states = False
         self.x, self.y = x, y
 
         self.tile_data = None
         self.tile_string = None
+
+        self.check_data()
 
         if self.data is not None and self.data != 0:
             self.init_sprite()
@@ -83,12 +84,12 @@ class Tile(pg.sprite.Sprite):
             self.tile_string = "dirt"
         elif self.data == 3:
             self.tile_data = "overlay seed tile"
-            self.tile_string = "flower"
-            self.grow = True
+            self.tile_string = "seed"
+            self.multi_states = True
         elif self.data == 4:
             self.tile_data = "overlay flower1 tile"
             self.tile_string = "growing"
-            self.grow = True
+            self.multi_states = True
         elif self.data == 'a':
             self.tile_data = 'concrete_ tile'
             self.tile_string = 'concrete'
