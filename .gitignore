@@ -1,5 +1,6 @@
 venv
 venv_notwin
 *.pyc
+.idea/*
 .idea
 .DS_Store
