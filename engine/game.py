@@ -1,17 +1,15 @@
-import pygame as pg
 import sys
-from os import path
 
-
-from .settings import *
 from .sprites import *
 from .generators import *
 from .camera import *
 from .converter import *
 from .economy import *
-from .data_handler import *
+from .loaders.save_data_handler import *
+from .loaders.plugn_handler import PluginLoader
 import threading
 import time
+import os
 
 
 class Game:
@@ -21,6 +19,7 @@ class Game:
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
+        self.dt = 0
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)
         self.playing = True
@@ -28,15 +27,7 @@ class Game:
         self.iso = Converter()
         self.interval = INTERVAL
 
-    def _run_thread(self):
-        """Method that runs forever."""
-        while True:
-            self.grow()
-            time.sleep(self.interval)
-
-
-    def new(self):
-        """Initialize all variables and do all the setup for a new game."""
+        self.gamestate = {}
         self.economy = Economy(STARTINGMONEY)
         self.all_sprites = pg.sprite.Group()
         self.tiles = pg.sprite.Group()
@@ -45,9 +36,30 @@ class Game:
         self.grid_foreground = Grid(self, W, H)
         self.grid_foreground.create_grid(0)
         self.player = Player(self, 2, 2)
+        self.player_pos = {"x": 0, "y": 0}
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
+
+        plugins = []
+        s_dir = os.getcwd()+"/plugins"
+        for file in os.listdir(s_dir):
+            if file.endswith(".py"):
+                mod_name = file[:-3]  # strip .py at the end
+                plugins.append("."+mod_name)
+
+        self.PluginLoader = PluginLoader(self, plugins)
+
+    def _run_thread(self):
+        """Method that runs forever."""
+        while True:
+            self.grow()
+            self.PluginLoader.run()
+            time.sleep(self.interval)
+
+    def new(self):
+        """Initialize all variables and do all the setup for a new game."""
+
         thread = threading.Thread(target=self._run_thread, args=())
-        thread.start()                                  # Start the execution
+        thread.start()  # Start the execution
 
     def run(self):
         """Game loop."""
@@ -60,7 +72,8 @@ class Game:
             # Draw updated screen.
             self.draw()
 
-    def quit(self):
+    @staticmethod
+    def quit():
         """Quit the game."""
         pg.quit()
         sys.exit()
@@ -115,7 +128,7 @@ class Game:
     def change_tile(self, data):
         x, y = self.player.current_position()
         if isinstance(self.grid_background.grid_data[x][y].data, str):
-            if self.economy._check_transaction('concrete'):
+            if self.economy.check_transaction('concrete'):
                 self.grid_background.update_tile(data, x, y)
                 self.grid_background.check_update_grid()
                 self.economy.buy(self.grid_background.grid_data[x][y].tile_string)
@@ -141,13 +154,13 @@ class Game:
         self.grid_foreground.check_update_grid()
         d = Data('save_data.txt')
         maps_dict = {'maps':
-            {'background': self.grid_background._grid_list(),
-            'foreground': self.grid_foreground._grid_list()
-            }}
+                     {'background': self.grid_background.grid_list(),
+                      'foreground': self.grid_foreground.grid_list()
+                      }}
         player_dict = {'position':
-            {'x': self.player.x,
-            'y': self.player.y
-            }}
+                       {'x': self.player.x,
+                        'y': self.player.y
+                        }}
         economy_dict = {'money': self.economy.money}
         d.update_file('game state', maps_dict)
         d.update_file('economy', economy_dict)
@@ -155,29 +168,30 @@ class Game:
         d.save_to_file()
 
     def load_gamestate(self):
+        self.player.kill()
         d = Data('save_data.txt')
         self.gamestate = d.load_master_dict('game state')
-        self.background_list = self.gamestate['maps']['background']
-        self.foreground_list = self.gamestate['maps']['foreground']
-        self.economy = d.load_master_dict('economy')
-        self.player = d.load_master_dict('player')
-        self.money = self.economy['money']
-        self.player = self.player['position']
+        background_list = self.gamestate['maps']['background']
+        foreground_list = self.gamestate['maps']['foreground']
+        economy = d.load_master_dict('economy')
+        player_data = d.load_master_dict('player')
+        money = economy['money']
+        self.player_pos = player_data['position']
+        return money, background_list, foreground_list
 
     def load(self):
         self.all_sprites = pg.sprite.Group()
         self.tiles = pg.sprite.Group()
-        self.load_gamestate()
-        self.economy = Economy(self.money)
-        self.grid_background = Grid(self, len(self.background_list), len(self.background_list[0]))
-        self.grid_background.load_grid(self.background_list)
-        self.grid_foreground = Grid(self, len(self.foreground_list), len(self.foreground_list[0]))
-        self.grid_foreground.load_grid(self.foreground_list)
-        self.player = Player(self, self.player['x'], self.player['y'])
+        money, background_list, foreground_list = self.load_gamestate()
+        self.economy = Economy(money)
+        self.grid_background = Grid(self, len(background_list), len(background_list[0]))
+        self.grid_background.load_grid(background_list)
+        self.grid_foreground = Grid(self, len(foreground_list), len(foreground_list[0]))
+        self.grid_foreground.load_grid(foreground_list)
+        self.player = Player(self, self.player_pos['x'], self.player_pos['y'])
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
         thread = threading.Thread(target=self._run_thread, args=())
         thread.start()
-
 
     def grow(self):
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
@@ -187,5 +201,3 @@ class Game:
                     if result == 0:
                         tile.data += 1
                         self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
-
-

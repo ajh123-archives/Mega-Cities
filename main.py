@@ -1,3 +1,3 @@
-from src import main
+from engine import main
 
 main.main()

@@ -23,10 +23,10 @@ class Economy:
         print(f'''Bought a {tile_data} for ${self.dict[tile_data]['cost']}''')
         print(f'''Money: {self.money}''')
 
-    def _check_transaction(self, tile_data):
+    def check_transaction(self, tile_data):
         money = self.money
-        result = money -  self.dict[tile_data]['cost']
-        if result > 0 :
+        result = money - self.dict[tile_data]['cost']
+        if result > 0:
             return True
         else:
             print('Not enough money to buy item!')

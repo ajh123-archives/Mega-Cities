@@ -38,9 +38,11 @@ class Tile(pg.sprite.Sprite):
     is currently handled in this class."""
 
     def __init__(self, grid, game, data, x, y):
+        super(Tile, self).__init__()
         self.data = data
         self.game = game
         self.check_data()
+        self.grid = grid
 
         # Flags to check if other processes are needed.
         self.flag = False
@@ -48,14 +50,17 @@ class Tile(pg.sprite.Sprite):
         self.grow = False
         self.x, self.y = x, y
 
-        if self.data != 0:
+        self.tile_data = None
+        self.tile_string = None
+
+        if self.data is not None and self.data != 0:
             self.init_sprite()
             self.load_sprite()
 
     def init_sprite(self):
         """Creates a sprite."""
-        self.groups = self.game.tiles
-        pg.sprite.Sprite.__init__(self, self.groups)
+        groups = self.game.tiles
+        pg.sprite.Sprite.__init__(self, groups)
         self.sprite_init = False
 
     def load_sprite(self):
@@ -63,9 +68,9 @@ class Tile(pg.sprite.Sprite):
         self.check_data()
         self.image = pg.image.load(f"""images/{self.tile_data}.png""").convert_alpha()
         self.rect = self.image.get_rect()
-        self.iso = Converter()
+        iso = Converter()
         # Convert cartesian to isometric coordinates
-        self.rect.x, self.rect.y = self.iso.convert_cart(self.x, self.y)
+        self.rect.x, self.rect.y = iso.convert_cart(self.x, self.y)
 
     def check_data(self):
         """Checks the data in the Tile object
@@ -116,10 +121,11 @@ class Grid:
         self.h = height
         self.width = width * TILEWIDTH
         self.height = height * TILEHEIGHT
+        self.grid_data = [[Tile(None, None, None, None, None) for _ in range(self.w)] for _ in range(self.h)]
 
     def create_grid(self, data):
         """Creates a grid with specified data population."""
-        self.grid_data = [[data for x in range(self.w)] for y in range(self.h)]
+        self.grid_data = [[data for _ in range(self.w)] for _ in range(self.h)]
         for row_nb, row in enumerate(self.grid_data):
             for col_nb, tile in enumerate(row):
                 self.grid_data[row_nb][col_nb] = Tile(
@@ -128,34 +134,52 @@ class Grid:
 
     def load_grid(self, grid_list):
         self.grid_data = [
-            [0 for x in range(self.w)] for y in range(self.h)
+            [0 for _ in range(self.w)] for _ in range(self.h)
         ]
         """Saves games states by saving tile_data in a list array."""
         for row_nb, row in enumerate(grid_list):
             for col_nb, tile in enumerate(row):
-                self.grid_data[row_nb][col_nb] = Tile(
-                    self, self.game, grid_list[row_nb][col_nb], row_nb, col_nb
-                )
+                if isinstance(col_nb, int) and isinstance(row_nb, int):
+                    self.grid_data[row_nb][col_nb] = Tile(
+                        self, self.game, grid_list[row_nb][col_nb], row_nb, col_nb
+                    )
+                    continue
+
+                raise TypeError(f"row_nb: {row_nb} & col_nb:{col_nb} must be type of int")
 
     def update_tile(self, data, x, y):
         """Updates a tile at the specified coordinates."""
-        self.grid_data[x][y].flag = True
-        self.grid_data[x][y].data = data
+        tile = self.grid_data[x][y]
+        if isinstance(tile, Tile):
+            tile.flag = True
+            tile.data = data
+            return
+
+        raise TypeError("tile must be type of Tile")
 
     def check_update_grid(self):
         """Check if the grid needs to be updated."""
         for row_nb, row in enumerate(self.grid_data):
             for col_nb, tile in enumerate(row):
-                if tile.flag:
-                    tile.update_tile_image()
+                if isinstance(tile, Tile):
+                    if tile.flag:
+                        tile.update_tile_image()
+                    continue
 
-    def _grid_list(self):
+                raise TypeError(f"tile {row_nb}:{col_nb} must be type of Tile")
+
+    def grid_list(self):
         grid_list = [
-            [0 for x in range(len(self.grid_data[1]))]
-            for y in range(len(self.grid_data))
+            [0 for _ in range(len(self.grid_data[1]))]
+            for _ in range(len(self.grid_data))
         ]
         """Saves games states by saving tile_data in a list array."""
         for row_nb, row in enumerate(self.grid_data):
             for col_nb, tile in enumerate(row):
-                grid_list[row_nb][col_nb] = self.grid_data[row_nb][col_nb].data
+                tile = self.grid_data[row_nb][col_nb]
+                if isinstance(tile, Tile):
+                    grid_list[row_nb][col_nb] = tile.data
+                    continue
+
+                raise TypeError(f"tile {row_nb}:{col_nb} must be type of Tile")
         return grid_list
