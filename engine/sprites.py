@@ -75,21 +75,8 @@ class Tile(pg.sprite.Sprite):
     def check_data(self):
         """Checks the data in the Tile object
         and selects the image to display."""
-        if self.data == 3:
-            self.tile_data = "overlay seed tile"
-            self.tile_string = "orange tulip:seed"
-            self.multi_states = True
-        elif self.data == 4:
-            self.tile_data = "overlay flower1 tile"
-            self.tile_string = "orange tulip:growing"
-            self.multi_states = True
-        elif self.data == 5:
-            self.tile_data = "overlay flower2 tile"
-            self.tile_string = "orange tulip:flower"
-        else:
-            print(self.game.TileFile.images, self.data)
-            self.tile_data = self.game.TileFile.images[self.data]
-            self.tile_string = self.game.TileFile.titles[self.data]
+        self.tile_data = self.game.TileFile.images[self.data]
+        self.tile_string = self.game.TileFile.titles[self.data]
 
     def update_tile_image(self):
         """Updates the tile with a new image and

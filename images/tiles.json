@@ -1,17 +1,17 @@
 {
   "tiles": {
     "grass": {
-      "netId":"b",
+      "netId":1,
       "image":"grass_tile",
-      "multiStates": false
+      "multiState": false
     },
     "dirt": {
       "netId":2,
       "image":"dirt_tile",
-      "multiStates": false
+      "multiState": false
     },
     "orange tulip": {
-      "multiStates": true,
+      "multiState": true,
       "states": {
         "loop": false,
         "seed" : {
@@ -29,9 +29,9 @@
       }
     },
     "concrete": {
-      "netId":"a",
+      "netId":6,
       "image":"concrete_tile",
-      "multiStates": false
+      "multiState": false
     }
   }
 }

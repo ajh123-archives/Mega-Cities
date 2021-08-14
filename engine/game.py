@@ -35,7 +35,7 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.tiles = pg.sprite.Group()
         self.grid_background = Grid(self, W, H)
-        self.grid_background.create_grid('b')
+        self.grid_background.create_grid(1)
         self.grid_foreground = Grid(self, W, H)
         self.grid_foreground.create_grid(0)
         self.player = Player(self, 2, 2)
@@ -115,7 +115,7 @@ class Game:
                 if event.key == pg.K_DOWN:
                     self.player.move(dy=1)
                 if event.key == pg.K_RETURN:
-                    self.change_tile('a')
+                    self.change_tile(6)
                 if event.key == pg.K_SPACE:
                     self.transform_tile()
 
