@@ -6,7 +6,8 @@ class Economy:
         self.dict = {
             'grass': {'cost': 10, 'sell': -10},
             'dirt': {'cost': 0, 'sell': 0},
-            'flower': {'cost': 50, 'sell': 150},
+            'orange tulip:seed': {'cost': 50, 'sell': 0},
+            'orange tulip:flower': {'cost': 0, 'sell': 150},
             'tree': {'cost': 100, 'sell': -50},
             'concrete': {'cost': 50, 'sell': 0}
             }

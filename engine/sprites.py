@@ -52,9 +52,8 @@ class Tile(pg.sprite.Sprite):
         self.tile_data = None
         self.tile_string = None
 
-        self.check_data()
-
         if self.data is not None and self.data != 0:
+            self.check_data()
             self.init_sprite()
             self.load_sprite()
 
@@ -76,26 +75,21 @@ class Tile(pg.sprite.Sprite):
     def check_data(self):
         """Checks the data in the Tile object
         and selects the image to display."""
-        if self.data == 'b':
-            self.tile_data = "grass_tile"
-            self.tile_string = "grass"
-        elif self.data == 2:
-            self.tile_data = "dirt_tile"
-            self.tile_string = "dirt"
-        elif self.data == 3:
+        if self.data == 3:
             self.tile_data = "overlay seed tile"
-            self.tile_string = "seed"
+            self.tile_string = "orange tulip:seed"
             self.multi_states = True
         elif self.data == 4:
             self.tile_data = "overlay flower1 tile"
-            self.tile_string = "growing"
+            self.tile_string = "orange tulip:growing"
             self.multi_states = True
-        elif self.data == 'a':
-            self.tile_data = 'concrete_ tile'
-            self.tile_string = 'concrete'
-        else:
+        elif self.data == 5:
             self.tile_data = "overlay flower2 tile"
-            self.tile_string = "flower"
+            self.tile_string = "orange tulip:flower"
+        else:
+            print(self.game.TileFile.images, self.data)
+            self.tile_data = self.game.TileFile.images[self.data]
+            self.tile_string = self.game.TileFile.titles[self.data]
 
     def update_tile_image(self):
         """Updates the tile with a new image and
@@ -122,7 +116,7 @@ class Grid:
         self.h = height
         self.width = width * TILEWIDTH
         self.height = height * TILEHEIGHT
-        self.grid_data = [[Tile(None, None, None, None, None) for _ in range(self.w)] for _ in range(self.h)]
+        self.grid_data = [[Tile(None, game, None, None, None) for _ in range(self.w)] for _ in range(self.h)]
 
     def create_grid(self, data):
         """Creates a grid with specified data population."""

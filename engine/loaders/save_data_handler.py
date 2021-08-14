@@ -1,5 +1,6 @@
 import json
 
+
 class Data:
     def __init__(self, file_name):
         """Initializes and stores file name and the data on the file."""

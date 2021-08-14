@@ -7,6 +7,7 @@ from .converter import *
 from .economy import *
 from .loaders.save_data_handler import *
 from .loaders.plugn_handler import PluginLoader
+from .loaders.tile_loader import TileFile
 import threading
 import time
 import os
@@ -17,6 +18,8 @@ class Game:
     def __init__(self):
         """Initialize screen, pygame, map data, and settings."""
         pg.init()
+        self.TileFile = TileFile()
+
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
         self.dt = 0
