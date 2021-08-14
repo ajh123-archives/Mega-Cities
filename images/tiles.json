@@ -14,6 +14,7 @@
       "multiState": true,
       "states": {
         "loop": false,
+        "delay": 30,
         "seed" : {
           "netId":3,
           "image":"overlay seed tile"
