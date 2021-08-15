@@ -8,6 +8,7 @@ class TileFile(Data):
         self.titles = {}
         self.multi_states = {}
         self.tick_multiplier = {}
+        self.loop = {}
 
         for tile_name, tile in self.data["tiles"].items():
             is_multi_state = tile.get("multiState", False)
@@ -18,6 +19,8 @@ class TileFile(Data):
                         self.images[tile["netId"]] = tile["image"]
                         self.titles[tile["netId"]] = tile_name
                         self.multi_states[tile["netId"]] = False
+                        self.tick_multiplier[tile["netId"]] = 0
+                        self.loop[tile["netId"]] = False
                     except KeyError:
                         pass
                 else:
@@ -26,8 +29,10 @@ class TileFile(Data):
                             self.images[tile["netId"]] = self.images[root_inherit]
                             self.titles[tile["netId"]] = tile_name
                             self.multi_states[tile["netId"]] = False
+                            self.tick_multiplier[tile["netId"]] = 0
+                            self.loop[tile["netId"]] = False
                         except IndexError:
-                            raise IndexError(f"JSON tile -> {tile_name}.inherit ({root_inherit})."+
+                            raise IndexError(f"JSON tile -> {tile_name}.inherit ({root_inherit})." +
                                              f"Tile {root_inherit} does not exist, Have you defined it before?")
                     else:
                         raise TypeError(f"JSON tile -> {tile_name}.inherit must be type of int or str")
@@ -41,11 +46,15 @@ class TileFile(Data):
                                 self.images[value["netId"]] = value["image"]
                                 self.titles[value["netId"]] = tile_name + ":" + key
                                 self.multi_states[value["netId"]] = True
+                                self.tick_multiplier[value["netId"]] = states["tickMultiplier"]
+                                self.loop[value["netId"]] = states["loop"]
                             else:
                                 if type(state_inherit) is int:
                                     self.images[value["netId"]] = self.images[state_inherit]
                                     self.titles[value["netId"]] = tile_name + ":" + key
                                     self.multi_states[value["netId"]] = True
+                                    self.tick_multiplier[value["netId"]] = states["tickMultiplier"]
+                                    self.loop[value["netId"]] = states["loop"]
                                 else:
                                     raise TypeError(f"JSON tile -> {tile_name}.states.{key}.inherit must be type of "
                                                     f"int or str")
