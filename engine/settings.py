@@ -13,7 +13,7 @@ HEIGHT = 500
 FPS = 60
 TITLE = "Mega Cities"
 BGCOLOR = DARKGREY
-# Game 'tick' interval
+# Game 'tick' interval in milliseconds
 INTERVAL = 30
 
 # Grid settings

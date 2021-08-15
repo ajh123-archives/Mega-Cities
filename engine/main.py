@@ -72,7 +72,7 @@ class Menu:
         # Create game object.
         g = Game()
         while running:
-            g.new()
+            g.new(g)
             # Main Game Loop
             g.run()
             running = g.playing

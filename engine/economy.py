@@ -9,7 +9,8 @@ class Economy:
             'orange tulip:seed': {'cost': 50, 'sell': 0},
             'orange tulip:flower': {'cost': 0, 'sell': 150},
             'tree': {'cost': 100, 'sell': -50},
-            'concrete': {'cost': 50, 'sell': 0}
+            'concrete': {'cost': 50, 'sell': 0},
+            'debug:1': {'cost': 0, 'sell': 0},
             }
         self.money = money
         print(f'''Current money: {self.money}''')

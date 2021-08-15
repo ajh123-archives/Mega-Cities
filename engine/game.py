@@ -52,17 +52,17 @@ class Game:
 
         self.PluginLoader = PluginLoader(self, plugins)
 
-    def _run_thread(self):
+    def _run_thread(self, game):
         """Method that runs forever."""
-        while True:
+        while game.playing:
             self.grow()
             self.PluginLoader.run()
-            time.sleep(self.interval)
+            time.sleep(self.interval/1000)
 
-    def new(self):
+    def new(self, game):
         """Initialize all variables and do all the setup for a new game."""
 
-        thread = threading.Thread(target=self._run_thread, args=())
+        thread = threading.Thread(target=self._run_thread, args=(game,), daemon=True)
         thread.start()  # Start the execution
 
     def run(self):
@@ -117,6 +117,8 @@ class Game:
                     self.player.move(dy=1)
                 if event.key == pg.K_RETURN:
                     self.change_tile(6)
+                if event.key == pg.K_1:
+                    self.change_tile(self.TileLookup.lookup_from_title("debug:1"))
                 if event.key == pg.K_SPACE:
                     self.transform_tile()
 
@@ -194,15 +196,16 @@ class Game:
         self.grid_foreground.load_grid(foreground_list)
         self.player = Player(self, self.player_pos['x'], self.player_pos['y'])
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
-        thread = threading.Thread(target=self._run_thread, args=())
+        thread = threading.Thread(target=self._run_thread, args=(self,))
         thread.start()
 
     def grow(self):
+        print("grow")
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
                 if tile.multi_states:
                     result = self.gen.generate_random_number(0, 1)
-                    if tile.data + 1 != self.TileLookup.lookup_from_title("concrete"):
+                    if tile.data + 1 != self.TileLookup.lookup_from_title("orange tulip:flower")+1:
                         if result == 0:
                             tile.data += 1
                             self.grid_foreground.update_tile(tile.data, row_nb, col_nb)

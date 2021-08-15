@@ -77,6 +77,7 @@ class Tile(pg.sprite.Sprite):
         and selects the image to display."""
         self.tile_data = self.game.TileFile.images[self.data]
         self.tile_string = self.game.TileFile.titles[self.data]
+        self.multi_states = self.game.TileFile.multi_states[self.data]
 
     def update_tile_image(self):
         """Updates the tile with a new image and

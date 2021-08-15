@@ -14,7 +14,7 @@
       "multiState": true,
       "states": {
         "loop": false,
-        "delay": 30,
+        "tickMultiplier": 1000,
         "seed" : {
           "netId":3,
           "image":"overlay seed tile"
@@ -33,6 +33,25 @@
       "netId":6,
       "image":"concrete_tile",
       "multiState": false
+    },
+    "debug": {
+      "multiState": true,
+      "states": {
+        "loop": true,
+        "tickMultiplier": 2,
+        "1" : {
+          "netId":7,
+          "inherit":2
+        },
+        "2" : {
+          "netId":8,
+          "inherit":1
+        },
+        "3" : {
+          "netId":9,
+          "inherit":6
+        }
+      }
     }
   }
 }
