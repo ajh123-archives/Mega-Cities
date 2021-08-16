@@ -203,9 +203,11 @@ class Game:
         print("grow")
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
-                if tile.multi_states:
-                    result = self.gen.generate_random_number(0, 1)
-                    if tile.data + 1 != self.TileLookup.lookup_from_title("orange tulip:flower")+1:
-                        if result == 0:
-                            tile.data += 1
-                            self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
+                if tile.data is not 0:
+                    if tile.multi_states:
+                        states = self.TileLookup.lookup_tile_states(self.TileLookup.lookup_from_int(tile.data))
+                        result = self.gen.generate_random_number(0, 1)
+                        if tile.data + 1 != self.TileLookup.lookup_from_title("orange tulip:flower")+1:
+                            if result == 0:
+                                tile.data += 1
+                                self.grid_foreground.update_tile(tile.data, row_nb, col_nb)

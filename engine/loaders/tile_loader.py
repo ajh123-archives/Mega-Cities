@@ -4,6 +4,7 @@ from .save_data_handler import Data
 class TileFile(Data):
     def __init__(self):
         super(TileFile, self).__init__("images/tiles.json")
+
         self.images = {}
         self.titles = {}
         self.multi_states = {}
@@ -71,14 +72,14 @@ class TileLookup:
 
         raise TypeError("tileFile must be type of TileFile")
 
-    def lookup_from_int(self, netId) -> str:
+    def lookup_from_int(self, netId: int) -> str:
         """The fastest mode of lookup since the names are stored in a netId indexed array
 
         :param netId :(int) The associated network id of the tile
         """
         return self.tileFile.titles[netId]
 
-    def lookup_from_title(self, title) -> int:
+    def lookup_from_title(self, title: str) -> int:
         """The slowest mode of lookup since the we have to loop the tiles array and compare
 
         :param title :(str) The associated title of the tile
@@ -88,3 +89,14 @@ class TileLookup:
             if self.tileFile.titles[tile] == title:
                 return tile
         return -1
+
+    def lookup_tile_states(self, title: str) -> list[...]:
+        """Use a tile name or state name to lookup all the tile's states"""
+        head, _, _ = title.partition(':')
+        states = []
+        for tile_title in self.tileFile.titles.items():
+            if type(tile_title[1]) is str:
+                if tile_title[1].startswith(head + ":"):
+                    states.append(tile_title[1])
+
+        return states
