@@ -8,7 +8,7 @@ from .economy import *
 from .loaders.save_data_handler import *
 from .loaders.plugn_handler import PluginLoader
 from .loaders.tile_loader import TileFile, TileLookup
-import threading
+from .threads.WorkerThreads import WorkerThread
 import time
 import os
 
@@ -42,6 +42,7 @@ class Game:
         self.player = Player(self, 2, 2)
         self.player_pos = {"x": 0, "y": 0}
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
+        self.threads = []
 
         plugins = []
         s_dir = os.getcwd()+"/plugins"
@@ -52,18 +53,19 @@ class Game:
 
         self.PluginLoader = PluginLoader(self, plugins)
 
-    def _run_thread(self, game):
+    def _run_thread(self, *args):
         """Method that runs forever."""
-        while game.playing:
+        while self.playing:
             self.grow()
             self.PluginLoader.run()
             time.sleep(self.interval/1000)
 
-    def new(self, game):
+    def new(self):
         """Initialize all variables and do all the setup for a new game."""
 
-        thread = threading.Thread(target=self._run_thread, args=(game,), daemon=True)
+        thread = WorkerThread(self._run_thread, True)
         thread.start()  # Start the execution
+        self.threads.append(thread)
 
     def run(self):
         """Game loop."""
@@ -76,10 +78,14 @@ class Game:
             # Draw updated screen.
             self.draw()
 
-    @staticmethod
-    def quit():
+    def quit(self):
         """Quit the game."""
         pg.quit()
+
+        # Stop these threads
+        for thread in self.threads:
+            thread.stop = True
+
         sys.exit()
 
     def update(self):
@@ -196,18 +202,31 @@ class Game:
         self.grid_foreground.load_grid(foreground_list)
         self.player = Player(self, self.player_pos['x'], self.player_pos['y'])
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
-        thread = threading.Thread(target=self._run_thread, args=(self,))
-        thread.start()
+        self.new()
 
     def grow(self):
-        print("grow")
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
-                if tile.data is not 0:
-                    if tile.multi_states:
-                        states = self.TileLookup.lookup_tile_states(self.TileLookup.lookup_from_int(tile.data))
-                        result = self.gen.generate_random_number(0, 1)
-                        if tile.data + 1 != self.TileLookup.lookup_from_title("orange tulip:flower")+1:
-                            if result == 0:
-                                tile.data += 1
-                                self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
+                self.display_next_state(tile, row_nb, col_nb)
+
+        for row_nb, row in enumerate(self.grid_background.grid_data):
+            for col_nb, tile in enumerate(row):
+                self.display_next_state(tile, row_nb, col_nb)
+
+    def display_next_state(self, tile: Tile, row_nb, col_nb):
+        if tile.data != 0:
+            net_name = self.TileLookup.lookup_from_int(tile.data)
+            if tile.multi_states:
+                states = self.TileLookup.lookup_tile_states(net_name)
+                last = states[len(states)-1]
+                do_loop = self.TileFile.loop[tile.data]
+                result = self.gen.generate_random_number(0, 1)
+                if tile.data + 1 != self.TileLookup.lookup_from_title(last)+1:
+                    if result == 0:
+                        tile.data += 1
+                        self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
+                else:
+                    if do_loop and result == 0:
+                        first = self.TileLookup.lookup_from_title(states[0])
+                        tile.data = first
+                        self.grid_background.update_tile(tile.data, row_nb, col_nb)

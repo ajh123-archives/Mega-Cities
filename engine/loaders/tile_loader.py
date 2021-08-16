@@ -92,7 +92,7 @@ class TileLookup:
 
     def lookup_tile_states(self, title: str) -> list[...]:
         """Use a tile name or state name to lookup all the tile's states"""
-        head, _, _ = title.partition(':')
+        head = self.lookup_base_name(title)
         states = []
         for tile_title in self.tileFile.titles.items():
             if type(tile_title[1]) is str:
@@ -100,3 +100,9 @@ class TileLookup:
                     states.append(tile_title[1])
 
         return states
+
+    @staticmethod
+    def lookup_base_name(title: str) -> str:
+        """Use a tile name or state name to lookup the tile's base name"""
+        head, _, _ = title.partition(':')
+        return head

@@ -1,24 +1,26 @@
-#!/usr/bin/python3.4
+#!/usr/bin/python3.9
 # Setup Python ----------------------------------------------- #
-import pygame, sys
+import pygame
 
 # Setup pygame/window ---------------------------------------- #
 from pygame.locals import *
 from .game import *
 from .settings import *
 
+
 class Menu:
     def __init__(self):
         self.mainClock = pygame.time.Clock()
         pygame.init()
         pygame.display.set_caption(TITLE)
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT),0,32)
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT), 0, 32)
 
-        self.font = pygame.font.SysFont(None, 30)
+        self.font = pygame.font.SysFont("", 30)
         self.click = False
         self.main_menu()
 
-    def draw_text(self, text, font, color, surface, x, y):
+    @staticmethod
+    def draw_text(text, font, color, surface, x, y):
         textobj = font.render(text, 1, color)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
@@ -27,7 +29,7 @@ class Menu:
     def main_menu(self):
         while True:
 
-            self.screen.fill((0,0,0))
+            self.screen.fill((0, 0, 0))
             self.draw_text('main menu', self.font, (255, 255, 255), self.screen, 20, 20)
 
             mx, my = pygame.mouse.get_pos()
@@ -67,17 +69,19 @@ class Menu:
             pygame.display.update()
             self.mainClock.tick(60)
 
-    def new_game(self):
+    @staticmethod
+    def new_game():
         running = True
         # Create game object.
         g = Game()
         while running:
-            g.new(g)
+            g.new()
             # Main Game Loop
             g.run()
             running = g.playing
 
-    def load_game(self):
+    @staticmethod
+    def load_game():
         running = True
         # Create game object.
         g = Game()
@@ -90,7 +94,7 @@ class Menu:
     def options(self):
         running = True
         while running:
-            self.screen.fill((0,0,0))
+            self.screen.fill((0, 0, 0))
             self.draw_text('Options', self.font, (255, 255, 255), self.screen, 20, 20)
             self.draw_text('Foo!', self.font, (255, 255, 255), self.screen, 250, 250)
             for event in pygame.event.get():
@@ -104,5 +108,5 @@ class Menu:
             pygame.display.update()
             self.mainClock.tick(60)
 
-m = Menu()
 
+m = Menu()
