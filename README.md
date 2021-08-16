@@ -16,7 +16,7 @@ Python and it's Pygame module are used for creating the game.
 
 # Settings
 - Grid size can be changed in the src/settings file, default is 20 x 20.
-- The 'tick' rate determines how fast crops growth or other events happen, default is 30 seconds.
+- The 'tick' rate determines how fast animation checks happen, default is 30 milliseconds.
 - Default resolution is 500 x 500.
 
 # Changelog
