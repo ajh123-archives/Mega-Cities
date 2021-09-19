@@ -9,6 +9,8 @@ from .loaders.save_data_handler import *
 from .loaders.plugn_handler import PluginLoader
 from .loaders.tile_loader import TileFile, TileLookup
 from .threads.WorkerThreads import WorkerThread
+from .threads.DelayedFunctions import TimeoutFunction
+from .threads.DelayedFunctions import TodoList
 import time
 import os
 
@@ -30,6 +32,7 @@ class Game:
         self.gen = Generate()
         self.iso = Converter()
         self.interval = INTERVAL
+        self.ticks = 0
 
         self.gamestate = {}
         self.economy = Economy(STARTINGMONEY)
@@ -43,6 +46,7 @@ class Game:
         self.player_pos = {"x": 0, "y": 0}
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
         self.threads = []
+        self.run_later = TodoList()
 
         plugins = []
         s_dir = os.getcwd()+"/plugins"
@@ -53,17 +57,19 @@ class Game:
 
         self.PluginLoader = PluginLoader(self, plugins)
 
-    def _run_thread(self, *args):
+    def _run_thread(self):
         """Method that runs forever."""
         while self.playing:
-            self.grow()
+            self.ticks += INTERVAL
+            self.run_later.execute_ready_functions()
+            self.animate()
             self.PluginLoader.run()
             time.sleep(self.interval/1000)
 
     def new(self):
         """Initialize all variables and do all the setup for a new game."""
 
-        thread = WorkerThread(self._run_thread, True)
+        thread = WorkerThread(self._run_thread, False, True)
         thread.start()  # Start the execution
         self.threads.append(thread)
 
@@ -84,7 +90,8 @@ class Game:
 
         # Stop these threads
         for thread in self.threads:
-            thread.stop = True
+            if thread is not None:
+                thread.stop = True
 
         sys.exit()
 
@@ -94,6 +101,10 @@ class Game:
         self.grid_foreground.check_update_grid()
         self.all_sprites.update()
         self.camera.update(self.player)
+
+        for thread_index in range(0, len(self.threads)):
+            if self.threads[thread_index] is not None and self.threads[thread_index].stop:
+                self.threads[thread_index] = None
 
     def draw(self):
         """Draw the screen."""
@@ -204,7 +215,7 @@ class Game:
         self.camera = Camera(self.grid_background.width, self.grid_background.height)
         self.new()
 
-    def grow(self):
+    def animate(self):
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
                 self.display_next_state(tile, row_nb, col_nb)
@@ -221,12 +232,18 @@ class Game:
                 last = states[len(states)-1]
                 do_loop = self.TileFile.loop[tile.data]
                 result = self.gen.generate_random_number(0, 1)
-                if tile.data + 1 != self.TileLookup.lookup_from_title(last)+1:
-                    if result == 0:
-                        tile.data += 1
-                        self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
-                else:
-                    if do_loop and result == 0:
-                        first = self.TileLookup.lookup_from_title(states[0])
-                        tile.data = first
-                        self.grid_background.update_tile(tile.data, row_nb, col_nb)
+                multiplier = self.TileFile.tick_multiplier[tile.data]
+
+                def actually_display():
+                    if tile.data + 1 != self.TileLookup.lookup_from_title(last) + 1:
+                        if result == 0:
+                            tile.data += 1
+                            self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
+                    if tile.data + 1 == self.TileLookup.lookup_from_title(last) + 1:
+                        if do_loop and result == 0:
+                            first = self.TileLookup.lookup_from_title(states[0])
+                            tile.data = first
+                            self.grid_background.update_tile(tile.data, row_nb, col_nb)
+
+                func = TimeoutFunction(actually_display, self.ticks * multiplier)
+                self.run_later.add_to_list(func)
