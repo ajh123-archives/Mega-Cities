@@ -29,4 +29,3 @@ Python and it's Pygame module are used for creating the game.
 
 # Artwork
 All artwork is created by Saccharine-Coal or me unless otherwise stated.
-Some are also made by "Kenney.nl" or "www.kenney.nl" from opengameart.org
