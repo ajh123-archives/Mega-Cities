@@ -1,0 +1,2 @@
+class BufferUnderrun(Exception):
+    pass
