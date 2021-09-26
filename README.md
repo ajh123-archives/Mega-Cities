@@ -20,6 +20,7 @@ Python and it's Pygame module are used for creating the game.
 - Default resolution is 500 x 500.
 
 # Changelog
+- Started networking 26/sep/2021
 - Added a saving and loading system.
 - Simple menu added.
 - Simple economy added.
