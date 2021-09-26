@@ -75,6 +75,9 @@ class Tile(pg.sprite.Sprite):
     def check_data(self):
         """Checks the data in the Tile object
         and selects the image to display."""
+        tiles_len = len(self.game.TileFile.images)-1
+        if self.data > tiles_len:
+            self.data = -1
         self.tile_data = self.game.TileFile.images[self.data]
         self.tile_string = self.game.TileFile.titles[self.data]
         self.multi_states = self.game.TileFile.multi_states[self.data]

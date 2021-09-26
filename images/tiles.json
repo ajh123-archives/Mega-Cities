@@ -1,5 +1,10 @@
 {
   "tiles": {
+    "error.404": {
+      "netId":-1,
+      "image":"not_found",
+      "multiState": false
+    },
     "grass": {
       "netId":1,
       "image":"grass_tile",
@@ -33,25 +38,6 @@
       "netId":6,
       "image":"concrete_tile",
       "multiState": false
-    },
-    "debug": {
-      "multiState": true,
-      "states": {
-        "loop": true,
-        "tickMultiplier": 2,
-        "1" : {
-          "netId":7,
-          "inherit":2
-        },
-        "2" : {
-          "netId":8,
-          "inherit":1
-        },
-        "3" : {
-          "netId":9,
-          "inherit":6
-        }
-      }
     }
   }
 }
