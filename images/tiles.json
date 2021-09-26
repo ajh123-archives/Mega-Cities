@@ -7,7 +7,27 @@
     },
     "grass": {
       "netId":1,
-      "image":"grass_tile",
+      "image":"grass/flat",
+      "multiState": false
+    },
+    "grass_north": {
+      "netId":1.1,
+      "image":"grass/north",
+      "multiState": false
+    },
+    "grass_east": {
+      "netId":1.2,
+      "image":"grass/east",
+      "multiState": false
+    },
+    "grass_west": {
+      "netId":1.3,
+      "image":"grass/west",
+      "multiState": false
+    },
+    "grass_south": {
+      "netId":1.4,
+      "image":"grass/south",
       "multiState": false
     },
     "dirt": {
@@ -37,6 +57,11 @@
     "concrete": {
       "netId":6,
       "image":"concrete_tile",
+      "multiState": false
+    },
+    "house": {
+      "netId": 7,
+      "image":"house_east",
       "multiState": false
     }
   }

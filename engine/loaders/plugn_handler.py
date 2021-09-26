@@ -19,4 +19,4 @@ class PluginLoader:
     def run(self):
         # We is were magic happens, and all the plugins are going to be printed
         for plugin in self._plugins:
-            print(plugin)
+            pass

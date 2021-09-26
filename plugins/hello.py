@@ -6,7 +6,8 @@ class Plugin:
         print("Hello World plugin initialized")
 
     def execute(self, *args, **kwargs):
-        print(self.args, self.kwargs, args, kwargs)
+        #print(self.args, self.kwargs, args, kwargs)
+        pass
 
 
 def hi() -> int:

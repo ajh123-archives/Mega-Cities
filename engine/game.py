@@ -133,9 +133,9 @@ class Game:
                 if event.key == pg.K_DOWN:
                     self.player.move(dy=1)
                 if event.key == pg.K_RETURN:
-                    self.change_tile(6)
+                    self.change_tile(self.TileLookup.lookup_from_title("concrete"))
                 if event.key == pg.K_1:
-                    self.change_tile(self.TileLookup.lookup_from_title("debug:1"))
+                    self.change_tile(self.TileLookup.lookup_from_title("grass_west"))
                 if event.key == pg.K_SPACE:
                     self.transform_tile()
 
@@ -150,13 +150,15 @@ class Game:
 
     def change_tile(self, data):
         x, y = self.player.current_position()
-        if self.grid_background.grid_data[x][y].data != self.TileLookup.lookup_from_title("dirt"):
-            if self.economy.check_transaction('concrete'):
+        tile_title = self.TileFile.titles[data]
+        back_title = self.grid_background.grid_data[x][y].tile_string
+        if self.grid_background.grid_data[x][y].data != data:
+            if self.economy.check_transaction(tile_title):
                 self.grid_background.update_tile(data, x, y)
                 self.grid_background.check_update_grid()
-                self.economy.buy(self.grid_background.grid_data[x][y].tile_string)
+                self.economy.buy(tile_title)
         else:
-            print(f'''You can't place concrete on a crop!''')
+            print(f'''You can't place {tile_title} on a {back_title}!''')
 
     def _dirt_transform(self, x, y):
         if self.grid_foreground.grid_data[x][y].data >= self.TileLookup.lookup_from_title("orange tulip:flower"):
