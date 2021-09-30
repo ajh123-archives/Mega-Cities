@@ -11,6 +11,9 @@ from .loaders.tile_loader import TileFile, TileLookup
 from .threads.WorkerThreads import WorkerThread
 from .threads.DelayedFunctions import TimeoutFunction
 from .threads.DelayedFunctions import TodoList
+from .networking.Server import ServerMain
+from .networking.Client import Client
+from PodSixNet.Connection import connection
 import time
 import os
 
@@ -22,6 +25,9 @@ class Game:
         pg.init()
         self.TileFile = TileFile()
         self.TileLookup = TileLookup(self.TileFile)
+
+        self.server = ServerMain()
+        self.client = Client(host="127.0.0.1", port=35565)
 
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
@@ -64,7 +70,14 @@ class Game:
             self.run_later.execute_ready_functions()
             self.animate()
             self.PluginLoader.run()
+
             time.sleep(self.interval/1000)
+
+    def _net_thread(self):
+        """Method that runs network forever."""
+        self.server.Pump()
+        connection.Pump()
+        self.client.Pump()
 
     def new(self):
         """Initialize all variables and do all the setup for a new game."""
@@ -72,11 +85,15 @@ class Game:
         thread = WorkerThread(self._run_thread, False, True)
         thread.start()  # Start the execution
         self.threads.append(thread)
+        self.server.Pump()
+        self.client.Pump()
+        self.client.Send({"action": "myaction", "blah": 123, "things": [3, 4, 3, 4, 7]})
 
     def run(self):
         """Game loop."""
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
+            self._net_thread()
             # Catch all events.
             self.events()
             # Update data.
@@ -87,12 +104,6 @@ class Game:
     def quit(self):
         """Quit the game."""
         pg.quit()
-
-        # Stop these threads
-        for thread in self.threads:
-            if thread is not None:
-                thread.stop = True
-
         sys.exit()
 
     def update(self):
@@ -123,6 +134,13 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     self.save_gamestate()
+
+                    # Stop these threads
+                    for thread in self.threads:
+                        if thread is not None:
+                            thread.stop = True
+
+                    self.server.close()
                     self.playing = False
                 if event.key == pg.K_LEFT:
                     self.player.move(dx=-1)

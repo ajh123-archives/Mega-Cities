@@ -273,13 +273,13 @@ class Buffer(object):
     @classmethod
     def pack_json(cls, obj):
         """
-        Serialize an object to JSON and pack it to a Minecraft string.
+        Serialize an object to JSON and pack it to a string.
         """
         return cls.pack_string(json.dumps(obj))
 
     def unpack_json(self):
         """
-        Unpack a Minecraft string and interpret it as JSON.
+        Unpack a string and interpret it as JSON.
         """
 
         obj = json.loads(self.unpack_string())
