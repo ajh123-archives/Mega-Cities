@@ -65,13 +65,11 @@ class Game:
 
     def _run_thread(self):
         """Method that runs forever."""
-        while self.playing:
-            self.ticks += INTERVAL
-            self.run_later.execute_ready_functions()
-            self.animate()
-            self.PluginLoader.run()
+        self.ticks += INTERVAL
+        self.run_later.execute_ready_functions()
+        self.animate()
+        self.PluginLoader.run()
 
-            time.sleep(self.interval/1000)
 
     def _net_thread(self):
         """Method that runs network forever."""
@@ -81,10 +79,6 @@ class Game:
 
     def new(self):
         """Initialize all variables and do all the setup for a new game."""
-
-        thread = WorkerThread(self._run_thread, False, True)
-        thread.start()  # Start the execution
-        self.threads.append(thread)
         self.server.Pump()
         self.client.Pump()
         self.client.Send({"action": "myaction", "blah": 123, "things": [3, 4, 3, 4, 7]})
@@ -94,6 +88,7 @@ class Game:
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
             self._net_thread()
+            self._run_thread()
             # Catch all events.
             self.events()
             # Update data.
@@ -185,7 +180,7 @@ class Game:
             self.grid_foreground.grid_data[x][y].multi_states = False
             self.grid_background.update_tile(self.TileLookup.lookup_from_title("dirt"), x, y)
         elif self.grid_background.grid_data[x][y].data == self.TileLookup.lookup_from_title("dirt"):
-            self.grid_foreground.update_tile(3, x, y)
+            self.grid_foreground.update_tile(self.TileLookup.lookup_from_title("orange tulip:seed"), x, y)
             self.grid_foreground.check_update_grid()
             self.grid_foreground.grid_data[x][y].multi_states = True
             self.economy.buy(self.grid_foreground.grid_data[x][y].tile_string)
@@ -238,32 +233,34 @@ class Game:
     def animate(self):
         for row_nb, row in enumerate(self.grid_foreground.grid_data):
             for col_nb, tile in enumerate(row):
-                self.display_next_state(tile, row_nb, col_nb)
+                self.display_next_state(tile, self.grid_foreground, row_nb, col_nb)
 
         for row_nb, row in enumerate(self.grid_background.grid_data):
             for col_nb, tile in enumerate(row):
-                self.display_next_state(tile, row_nb, col_nb)
+                self.display_next_state(tile, self.grid_background, row_nb, col_nb)
 
-    def display_next_state(self, tile: Tile, row_nb, col_nb):
+    def display_next_state(self, tile: Tile, grid: Grid, row_nb, col_nb):
         if tile.data != 0:
             net_name = self.TileLookup.lookup_from_int(tile.data)
             if tile.multi_states:
                 states = self.TileLookup.lookup_tile_states(net_name)
-                last = states[len(states)-1]
+                last = list(states)[-1]
                 do_loop = self.TileFile.loop[tile.data]
                 result = self.gen.generate_random_number(0, 1)
                 multiplier = self.TileFile.tick_multiplier[tile.data]
 
                 def actually_display():
-                    if tile.data + 1 != self.TileLookup.lookup_from_title(last) + 1:
+                    string_data = str(tile.data)
+                    split_string = string_data.split(".", 1)
+                    dec = int(split_string[1])+1
+                    new_data = float(split_string[0]+"."+str(dec))
+
+                    if new_data <= last:
                         if result == 0:
-                            tile.data += 1
-                            self.grid_foreground.update_tile(tile.data, row_nb, col_nb)
-                    if tile.data + 1 == self.TileLookup.lookup_from_title(last) + 1:
-                        if do_loop and result == 0:
-                            first = self.TileLookup.lookup_from_title(states[0])
-                            tile.data = first
-                            self.grid_background.update_tile(tile.data, row_nb, col_nb)
+                            if do_loop:
+                                new_data = self.TileLookup.lookup_from_title(states[0])
+
+                            grid.update_tile(new_data, row_nb, col_nb)
 
                 func = TimeoutFunction(actually_display, self.ticks * multiplier)
                 self.run_later.add_to_list(func)

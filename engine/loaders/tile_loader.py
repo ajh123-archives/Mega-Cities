@@ -90,14 +90,14 @@ class TileLookup:
                 return tile
         return -1
 
-    def lookup_tile_states(self, title: str) -> list[...]:
+    def lookup_tile_states(self, title: str) -> dict[...]:
         """Use a tile name or state name to lookup all the tile's states"""
         head = self.lookup_base_name(title)
-        states = []
+        states = {}
         for tile_title in self.tileFile.titles.items():
             if type(tile_title[1]) is str:
                 if tile_title[1].startswith(head + ":"):
-                    states.append(tile_title[1])
+                    states[self.lookup_from_title(tile_title[1])] = tile_title[1]
 
         return states
 

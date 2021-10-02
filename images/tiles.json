@@ -41,15 +41,15 @@
         "loop": false,
         "tickMultiplier": 1000,
         "seed" : {
-          "netId":3,
+          "netId":3.1,
           "image":"overlay seed tile"
         },
         "growing" : {
-          "netId":4,
+          "netId":3.2,
           "image":"overlay flower1 tile"
         },
         "flower" : {
-          "netId":5,
+          "netId":3.3,
           "image":"overlay flower2 tile"
         }
       }
