@@ -2,6 +2,9 @@
 
 This is based of [Saccharine-Coal's isometric farm](https://github.com/Saccharine-Coal/Isometric-Farm-Demo)
 
+Not worked on anymore as there is a much more advanced [replacement](https://github.com/ajh123-development/HistorySurvival) underway!
+It brings 3D!
+
 # Introduction
 This project is a simple demo for an isometric farm game. 
 
